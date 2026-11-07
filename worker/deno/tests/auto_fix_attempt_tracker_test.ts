@@ -51,9 +51,42 @@ Deno.test("auto_fix_attempt_tracker - normalisation keeps genuinely different me
   assertNotEquals(a, b);
 });
 
+Deno.test("auto_fix_attempt_tracker - normalisation strips minute and hour durations", () => {
+  const first = normaliseLogExcerpt(
+    "FAILED | 17451 passed | 2 failed (2m14s) after 1h02m03s and 3m 45.5s (12ms)",
+  );
+  const second = normaliseLogExcerpt(
+    "FAILED | 17451 passed | 2 failed (2m31s) after 2h15m49s and 9m 01.2s (41s)",
+  );
+
+  assertEquals(first, second);
+  assertEquals(
+    first,
+    "failed | 17451 passed | 2 failed (<dur>) after <dur> and <dur> (<dur>)",
+  );
+});
+
 // ---------------------------------------------------------------------------
 // computeFailureSignature
 // ---------------------------------------------------------------------------
+
+Deno.test("auto_fix_attempt_tracker - signature is stable across Deno minute-length test durations", () => {
+  const base = {
+    repo: "owner/repo",
+    locus: LOCUS,
+    checkName: "Deno tests",
+  };
+  const first = computeFailureSignature({
+    ...base,
+    logExcerpt: "FAILED | 17451 passed | 2 failed (2m14s)",
+  });
+  const second = computeFailureSignature({
+    ...base,
+    logExcerpt: "FAILED | 17451 passed | 2 failed (2m31s)",
+  });
+
+  assertEquals(first, second);
+});
 
 Deno.test("auto_fix_attempt_tracker - signature is stable across attempts on the same failure", () => {
   const base = {
