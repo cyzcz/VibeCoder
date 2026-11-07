@@ -102,7 +102,10 @@ export function normaliseLogExcerpt(
     .replace(/\b(build|run|job|attempt|pipeline)\s*#?\d+/gi, "$1 <n>")
     .replace(/(https?:\/\/\S*?\/)\d+(?=\/|\s|$)/g, "$1<n>")
     .replace(/(?<![\w#])#\d+\b/g, "#<n>")
-    .replace(/\b\d+(?:\.\d+)?\s?m?s\b/gi, "<dur>")
+    .replace(
+      /\b(?:\d+h\s?)?(?:\d+m\s?)?\d+(?:\.\d+)?\s?m?s\b/gi,
+      "<dur>",
+    )
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
